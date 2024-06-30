@@ -8,7 +8,7 @@
 import Foundation
 import LocalAuthentication
 
-class SecureStorageWrapper: SecureStorageProtocol {
+public final class SecureStorageWrapper: SecureStorageProtocol {
     private let storage: SecureStorageProtocol
 
     init(storageType: StorageType, context: LAContext = LAContext()) {

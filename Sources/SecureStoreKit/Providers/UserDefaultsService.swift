@@ -7,7 +7,7 @@
 
 import Foundation
 
-class UserDefaultsService: SecureStorageProtocol {
+public final class UserDefaultsService: SecureStorageProtocol {
 
     func save(data: Data, for account: String, completion: @escaping (Result<Void, Error>) -> Void) {
         UserDefaults.standard.set(data, forKey: account)

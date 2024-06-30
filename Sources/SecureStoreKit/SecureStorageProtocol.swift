@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol SecureStorageProtocol {
+public protocol SecureStorageProtocol {
     func save(data: Data, for account: String, completion: @escaping (Result<Void, Error>) -> Void)
     func save(data: Data, for account: String) async -> Result<Void, Error>
 

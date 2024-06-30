@@ -8,7 +8,7 @@
 import Security
 import LocalAuthentication
 
-class KeychainService: SecureStorageProtocol {
+public final class KeychainService: SecureStorageProtocol {
     private let context: LAContext
 
     init(context: LAContext = LAContext()) {
