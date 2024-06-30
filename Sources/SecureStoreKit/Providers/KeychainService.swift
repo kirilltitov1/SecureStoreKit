@@ -11,11 +11,12 @@ import LocalAuthentication
 public final class KeychainService: SecureStorageProtocol {
     private let context: LAContext
 
-    init(context: LAContext = LAContext()) {
+    public init(context: LAContext = LAContext()) {
         self.context = context
     }
 
-    func save(data: Data, for account: String, completion: @escaping (Result<Void, Error>) -> Void) {
+    // Метод для сохранения данных
+    public func save(data: Data, for account: String, completion: @escaping (Result<Void, Error>) -> Void) {
         let accessControl = SecAccessControlCreateWithFlags(
             nil,
             kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
@@ -31,7 +32,7 @@ public final class KeychainService: SecureStorageProtocol {
             kSecUseAuthenticationContext as String: context
         ]
 
-        // Удаляем старый элемент перед добавлением нового, чтобы избежать дубликатов
+        // Удаление существующего элемента перед добавлением нового
         SecItemDelete(query as CFDictionary)
 
         let status = SecItemAdd(query as CFDictionary, nil)
@@ -43,7 +44,7 @@ public final class KeychainService: SecureStorageProtocol {
         }
     }
 
-    func save(data: Data, for account: String) async -> Result<Void, Error> {
+    public func save(data: Data, for account: String) async -> Result<Void, Error> {
         return await withCheckedContinuation { continuation in
             save(data: data, for: account) { result in
                 continuation.resume(returning: result)
@@ -51,7 +52,8 @@ public final class KeychainService: SecureStorageProtocol {
         }
     }
 
-    func load(for account: String, completion: @escaping (Result<Data?, Error>) -> Void) {
+    // Метод для загрузки данных
+    public func load(for account: String, completion: @escaping (Result<Data?, Error>) -> Void) {
         context.localizedReason = "Authenticate to access your secure data"
 
         var authError: NSError?
@@ -78,15 +80,17 @@ public final class KeychainService: SecureStorageProtocol {
                         completion(.failure(NSError(domain: NSOSStatusErrorDomain, code: Int(status), userInfo: nil)))
                     }
                 } else {
+                    print("Biometric evaluation failed: \(String(describing: evaluateError))")
                     completion(.failure(evaluateError ?? NSError(domain: "BiometricError", code: -1, userInfo: nil)))
                 }
             }
         } else {
+            print("Biometric policy evaluation failed: \(String(describing: authError))")
             completion(.failure(authError ?? NSError(domain: "BiometricError", code: -1, userInfo: nil)))
         }
     }
 
-    func load(for account: String) async -> Result<Data?, Error> {
+    public func load(for account: String) async -> Result<Data?, Error> {
         return await withCheckedContinuation { continuation in
             load(for: account) { result in
                 continuation.resume(returning: result)
@@ -94,7 +98,8 @@ public final class KeychainService: SecureStorageProtocol {
         }
     }
 
-    func update(data: Data, for account: String, completion: @escaping (Result<Void, Error>) -> Void) {
+    // Метод для обновления данных
+    public func update(data: Data, for account: String, completion: @escaping (Result<Void, Error>) -> Void) {
         let accessControl = SecAccessControlCreateWithFlags(
             nil,
             kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
@@ -116,12 +121,16 @@ public final class KeychainService: SecureStorageProtocol {
         let status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
         if status == errSecSuccess {
             completion(.success(()))
+        } else if status == errSecItemNotFound {
+            // Если элемент не найден, добавляем его как новый
+            save(data: data, for: account, completion: completion)
         } else {
+            print("Keychain update error: \(status)")
             completion(.failure(NSError(domain: NSOSStatusErrorDomain, code: Int(status), userInfo: nil)))
         }
     }
 
-    func update(data: Data, for account: String) async -> Result<Void, Error> {
+    public func update(data: Data, for account: String) async -> Result<Void, Error> {
         return await withCheckedContinuation { continuation in
             update(data: data, for: account) { result in
                 continuation.resume(returning: result)
@@ -129,7 +138,8 @@ public final class KeychainService: SecureStorageProtocol {
         }
     }
 
-    func delete(for account: String, completion: @escaping (Result<Void, Error>) -> Void) {
+    // Метод для удаления данных
+    public func delete(for account: String, completion: @escaping (Result<Void, Error>) -> Void) {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: account
@@ -143,7 +153,7 @@ public final class KeychainService: SecureStorageProtocol {
         }
     }
 
-    func delete(for account: String) async -> Result<Void, Error> {
+    public func delete(for account: String) async -> Result<Void, Error> {
         return await withCheckedContinuation { continuation in
             delete(for: account) { result in
                 continuation.resume(returning: result)
