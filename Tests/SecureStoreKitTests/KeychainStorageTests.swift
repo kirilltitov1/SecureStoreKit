@@ -11,13 +11,11 @@ import XCTest
 class KeychainStorageTests: XCTestCase {
 
     var keychainStorage: KeychainService!
-    var mockContext: MockLAContext!
+    var mockAuthenticator: MockBiometricAuthenticator!
 
     override func setUpWithError() throws {
-        mockContext = MockLAContext()
-        mockContext.canEvaluatePolicyResponse = true
-        mockContext.evaluatePolicySuccess = true
-        keychainStorage = KeychainService(context: mockContext)
+        mockAuthenticator = MockBiometricAuthenticator()
+        keychainStorage = KeychainService(authenticator: mockAuthenticator)
     }
 
     override func tearDownWithError() throws {
@@ -28,7 +26,7 @@ class KeychainStorageTests: XCTestCase {
         }
         waitForExpectations(timeout: 5, handler: nil)
         keychainStorage = nil
-        mockContext = nil
+        mockAuthenticator = nil
     }
 
     func testSaveAndLoadDataWithKeychain() async {

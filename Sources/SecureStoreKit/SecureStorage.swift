@@ -12,9 +12,10 @@ public final class SecureStorageWrapper: SecureStorageProtocol {
     private let storage: SecureStorageProtocol
 
     init(storageType: StorageType, context: LAContext = LAContext()) {
+        let authenticator: BiometricAuthenticatorProtocol = BiometricAuthenticator(context: context)
         switch storageType {
         case .keychain:
-            self.storage = KeychainService(context: context)
+            self.storage = KeychainService(authenticator: authenticator)
         case .userDefaults:
             self.storage = UserDefaultsService()
         }
