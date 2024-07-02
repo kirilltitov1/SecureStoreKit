@@ -111,13 +111,13 @@ public final class KeychainService: SecureStorageProtocol {
 
                 let query: [String: Any] = [
                     kSecClass as String: kSecClassGenericPassword,
-                    kSecAttrAccount as String: account
+                    kSecAttrAccount as String: account,
+                    kSecAttrAccessControl as String: accessControl,
+                    kSecUseAuthenticationContext as String: self.authenticator.context
                 ]
 
                 let attributes: [String: Any] = [
                     kSecValueData as String: data,
-                    kSecAttrAccessControl as String: accessControl,
-                    kSecUseAuthenticationContext as String: self.authenticator.context
                 ]
 
                 let status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
