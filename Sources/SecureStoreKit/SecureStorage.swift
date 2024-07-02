@@ -11,7 +11,7 @@ import LocalAuthentication
 public final class SecureStorageWrapper: SecureStorageProtocol {
     private let storage: SecureStorageProtocol
 
-    init(storageType: StorageType, context: LAContext = LAContext()) {
+    public init(storageType: StorageType, context: LAContext = LAContext()) {
         let authenticator: BiometricAuthenticatorProtocol = BiometricAuthenticator(context: context)
         switch storageType {
         case .keychain:
